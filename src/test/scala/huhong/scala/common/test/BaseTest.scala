@@ -13,8 +13,8 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.{AbstractTransactionalJUnit4SpringContextTests, SpringJUnit4ClassRunner}
 import org.springframework.test.context.transaction.TransactionConfiguration
 import org.springframework.transaction.annotation.Transactional
-import huhong.scala.json._
-import huhong.scala._
+import huhong.scala.common.json._
+import huhong.scala.common._
 
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
@@ -36,7 +36,7 @@ class BaseTest extends AbstractTransactionalJUnit4SpringContextTests {
   def hqlTest(): Unit = {
     userDao.withSession {
       implicit session => {
-        import huhong.scala.hibernate.hqlBuilder
+        import huhong.scala.common.hibernate.hqlBuilder
         val username = ("username" -> List("huhong", "wl"))
         val pwd = "123456"
         val ret = hql"from User u where password=$pwd and u.username in ($username)".list()

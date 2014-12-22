@@ -1,9 +1,7 @@
 package huhong.scala.test.dao
 
-import huhong.scala.dao.SessionDaoSupport
-import org.springframework.transaction.annotation.Transactional
-
-import huhong.scala.dao.impl.BaseGenericDao
+import huhong.scala.common.dao.SessionDaoSupport
+import huhong.scala.common.dao.impl.BaseGenericDao
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.{Repository, Component}

@@ -1,4 +1,4 @@
-package huhong.scala
+package huhong.scala.common
 
 import java.util.Collection
 

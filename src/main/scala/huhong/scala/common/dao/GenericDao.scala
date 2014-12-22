@@ -1,6 +1,6 @@
-package huhong.scala.dao
+package huhong.scala.common.dao
 
-import huhong.scala.hibernate.QueryExt
+import huhong.scala.common.hibernate.QueryExt
 import scala.collection.JavaConverters._
 import org.hibernate.{Session, Query}
 import java.io.Serializable

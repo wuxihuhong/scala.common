@@ -1,4 +1,4 @@
-package huhong.scala.dao
+package huhong.scala.common.dao
 
 import java.io.Serializable
 

@@ -1,12 +1,12 @@
-package huhong.scala.dao.impl
+package huhong.scala.common.dao.impl
 
-import huhong.scala.unable_update
+import huhong.scala.common.unable_update
 
-import huhong.scala.dao.GenericDao
+import huhong.scala.common.dao.GenericDao
 import java.io.Serializable
 import org.hibernate.{Session, SessionFactory}
-import huhong.scala.error.CustomException
-import huhong.scala.hibernate._
+import huhong.scala.common.error.CustomException
+import huhong.scala.common.hibernate._
 
 class BaseGenericDao[E <: Serializable : Manifest, PK <: Serializable : Manifest](sf: SessionFactory) extends GenericDao[E, PK] {
 

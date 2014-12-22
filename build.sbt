@@ -1,6 +1,6 @@
 name := "scala.common"
 
-organization := "cn.huhong"
+organization := "huhong"
 
 version := "1.0"
 
