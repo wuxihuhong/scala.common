@@ -1,4 +1,4 @@
-package huhong.scala.test.dao
+package huhong.scala.common.test.dao
 
 import huhong.scala.common.dao.SessionDaoSupport
 import huhong.scala.common.dao.impl.BaseGenericDao

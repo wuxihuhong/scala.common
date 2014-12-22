@@ -1,8 +1,8 @@
 package huhong.scala.test
 
-import huhong.scala.test.dao.UserDao
 
-
+import huhong.scala.common.test.{EvalContexts, TestInterface}
+import huhong.scala.common.test.dao.UserDao
 import org.junit.Test
 
 import org.junit.runner.RunWith
@@ -27,12 +27,26 @@ class BaseTest extends AbstractTransactionalJUnit4SpringContextTests {
   var userDao: UserDao = _
 
 
-  //@Test
+  @Test
   def test {
+    import scala.reflect.runtime._
+    import scala.tools.reflect.ToolBox
+    import huhong.scala.common._
+    val cm = scala.reflect.runtime.universe.runtimeMirror(this.getClass.getClassLoader)
+    val toolbox = cm.mkToolBox()
+
+    val code =
+      """
+      huhong.scala.common.test.EvalContexts.result="hi"
+      """
+    val codetree = toolbox.parse(code)
+    toolbox.eval(codetree)
+
+    println(EvalContexts.result)
 
   }
 
-  @Test
+  //@Test
   def hqlTest(): Unit = {
     userDao.withSession {
       implicit session => {

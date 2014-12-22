@@ -10,7 +10,7 @@ import scala.collection.mutable.ListBuffer
 /**
  * Created by huhong on 14/12/22.
  */
-class RuleSupport {
+trait RuleSupport {
 
   class RuleException(msg: String) extends CustomException(msg)
 
@@ -27,7 +27,7 @@ class RuleSupport {
     }
 
     def status(value: Symbol)(implicit name: String, session: HttpSession): ModelAndView = {
-      setStatus(value);
+      setStatus(value)
     }
 
     def status(implicit name: String, session: HttpSession): Symbol = {
@@ -94,15 +94,15 @@ class RuleSupport {
 
     var curstatus = if (session.getAttribute(sessionName) == null) defaultStatus else session.getAttribute(sessionName).asInstanceOf[Symbol]
 
-    if (curstatus == 'todo_clear) curstatus = defaultStatus;
+    if (curstatus == 'todo_clear) curstatus = defaultStatus
 
 
-    var mv: ModelAndView = null;
+    var mv: ModelAndView = null
 
     val dones = ListBuffer[Symbol]()
     while (curstatus != complateStatus && curstatus != 'todo_clear && checks.isDefinedAt(curstatus) && !dones.exists(_ == curstatus)) {
 
-      val oldstatus = curstatus;
+      val oldstatus = curstatus
       mv = checks(curstatus)
 
       curstatus = mv.getStatus
@@ -123,7 +123,7 @@ class RuleSupport {
     }
 
 
-    mv;
+    mv
 
   }
 }
