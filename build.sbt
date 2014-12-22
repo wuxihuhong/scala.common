@@ -25,7 +25,8 @@ libraryDependencies ++= Seq(
   "com.alibaba" % "druid" % "1.0.11" % "test",
   "mysql" % "mysql-connector-java" % "5.1.18" % "test",
   "org.scalatest" % "scalatest_2.10" % "2.2.2" % "test",
-  "org.scala-lang" % "jline" % "2.10.4"
+  "org.scala-lang" % "jline" % "2.10.4",
+  "javax.servlet" % "javax.servlet-api" % "3.0.1"
 )
 
 
