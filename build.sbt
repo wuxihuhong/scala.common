@@ -6,7 +6,7 @@ version := "1.0"
 
 scalaVersion := "2.10.4"
 
-scalacOptions ++= Seq("-deprecation", "-unchecked")
+scalacOptions ++= Seq("-deprecation","-unchecked")
 
 libraryDependencies ++= Seq(
   "org.springframework" % "spring-context" % "4.1.2.RELEASE",
