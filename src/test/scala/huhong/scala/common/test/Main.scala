@@ -23,14 +23,19 @@ object Main extends App {
   import scala.concurrent.ops._
 
   implicit val ec = ExecutionContext.global
-  for (i <- 0 until 3) {
+  for (i <- 0 until 993000) {
 
-    asyncEval(code, "name" -> {
+    asyncEval(code, "name" -> (() => {
       Thread.currentThread().getName
-    })
+    }))
 
   }
 
 
   System.in.read()
+
+
+  def getName() = {
+
+  }
 }

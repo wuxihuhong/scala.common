@@ -33,8 +33,6 @@ package object hibernate {
 
       hqlsb ++= sc.parts(sc.parts.length - 1)
 
-      println(hqlsb)
-
       val q = session.createQuery(hqlsb.toString())
 
       for (i <- 0 until p.length) {
@@ -77,5 +75,7 @@ package object hibernate {
       q.list().asInstanceOf[java.util.List[T]]
     }
   }
+
+
 
 }

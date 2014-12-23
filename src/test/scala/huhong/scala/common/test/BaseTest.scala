@@ -50,10 +50,12 @@ class BaseTest extends AbstractTransactionalJUnit4SpringContextTests {
   def hqlTest(): Unit = {
     userDao.withSession {
       implicit session => {
-        import huhong.scala.common.hibernate.hqlBuilder
+        import huhong.scala.common.hibernate._
         val username = ("username" -> List("huhong", "wl"))
         val pwd = "123456"
-        val ret = hql"from User u where password=$pwd and u.username in ($username)".list()
+        val ret = hql"from User u where password=$pwd and u.username in ($username)".list
+
+
 
         println(ret.toJsonString().formatJsonString())
       }

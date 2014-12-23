@@ -85,6 +85,7 @@ package object script {
       """.stripMargin
 
       val curtoolbox = cm.mkToolBox()
+
       val tree = curtoolbox.parse(fixedCode)
 
 
