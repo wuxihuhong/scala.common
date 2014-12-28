@@ -38,7 +38,7 @@ class BaseGenericDao[E <: Serializable : Manifest, PK <: Serializable : Manifest
 
     if (dbobj != null) {
       copyProperties(e, dbobj, setnull)
-      update(e)
+      update(dbobj)
     } else {
       throw new CustomException("id:" + id + " is null,update fail.")
     }
