@@ -2,6 +2,7 @@ package huhong.scala.common
 
 import java.io.{StringWriter, Writer, OutputStream, Serializable}
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.google.gson.{JsonParser, GsonBuilder}
@@ -11,11 +12,12 @@ import com.google.gson.{JsonParser, GsonBuilder}
  */
 package object json {
 
-  private val objectMapper = new ObjectMapper
+  val objectMapper = new ObjectMapper
+  objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
   objectMapper.registerModule(DefaultScalaModule)
 
   private lazy val gson = new GsonBuilder().setPrettyPrinting().create()
-  private lazy val jsonParser=new JsonParser
+  private lazy val jsonParser = new JsonParser
 
   implicit def JsonEx(bean: Any) = new {
     def toJson(out: OutputStream) = {
@@ -27,21 +29,29 @@ package object json {
     }
 
 
-    def toJsonString():String={
-      val sw=new StringWriter()
+    def toJsonString(): String = {
+      val sw = new StringWriter()
       toJson(sw)
-      try{
+      try {
         sw.toString
       }
-      finally{
+      finally {
         sw.close();
       }
     }
   }
 
-  implicit def StringEx(str:String)=new {
-    def formatJsonString():String={
+  implicit def StringEx(str: String) = new {
+    def formatJsonString(): String = {
       gson.toJson(jsonParser.parse(str))
+    }
+
+    def toBean[T: Manifest](): T = {
+      objectMapper.readValue(str, manifest[T].runtimeClass).asInstanceOf[T]
+    }
+
+    def toBean[T](clz:Class[T]):T={
+      objectMapper.readValue(str, clz)
     }
   }
 }

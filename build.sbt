@@ -1,12 +1,12 @@
-name := "scala.common"
+name := "scala-common"
 
 organization := "com.github.wuxihuhong"
 
-version := "1.0"
+version := "1.0.0-M1-SNAPSHOT"
 
 scalaVersion := "2.10.4"
 
-scalacOptions ++= Seq("-deprecation","-unchecked")
+scalacOptions ++= Seq("-deprecation", "-unchecked")
 
 libraryDependencies ++= Seq(
   "org.springframework" % "spring-context" % "4.1.2.RELEASE",
@@ -29,4 +29,17 @@ libraryDependencies ++= Seq(
   "javax.servlet" % "javax.servlet-api" % "3.0.1"
 )
 
+publishMavenStyle := true
 
+credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
+
+publishTo <<= version { v: String =>
+  val nexus = "https://oss.sonatype.org/"
+  if (v.trim.endsWith("SNAPSHOT"))
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  else
+    Some("releases" at nexus + "service/local/staging/deploy/maven2")
+}
+//webInfClasses in webapp := true
+//
+//jetty(port = 9000)
