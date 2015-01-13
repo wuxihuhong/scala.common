@@ -6,7 +6,7 @@ package huhong.scala
  * Created by huhong on 14/12/21.
  */
 package object common {
-  def println(anys: Any*): Unit = Predef.println(Console.GREEN_B + Console.WHITE + anys.mkString + Console.RESET)
+  def println(anys: Any*): Unit = Predef.println(Console.GREEN_B + Console.BLACK + anys.mkString + Console.RESET)
 
 
 }

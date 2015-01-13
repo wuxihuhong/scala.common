@@ -5,10 +5,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Created by huhong on 15/1/13.
+ */
 @Target({java.lang.annotation.ElementType.FIELD,
         java.lang.annotation.ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-public @interface unable_update {
+public @interface query_field {
+    String value();
 
+
+    String op() default "=";
+
+
+    String tablename() default "";
 }

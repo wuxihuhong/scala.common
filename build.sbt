@@ -2,7 +2,7 @@ name := "scala-common"
 
 organization := "com.github.wuxihuhong"
 
-version := "1.0.0-M2-SNAPSHOT"
+version := "1.0.0-M3-SNAPSHOT"
 
 scalaVersion := "2.10.4"
 
