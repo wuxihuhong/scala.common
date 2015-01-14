@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface query_field {
-    String value();
+    String value() default "";
 
 
     String op() default "=";

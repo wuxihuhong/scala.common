@@ -102,7 +102,10 @@ package object query {
             }
           } else {
             val tablename = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).tablename() else null
-            val fieldname = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).value() else f.getName
+            var fieldname = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).value() else f.getName
+            if (fieldname.equals("")) {
+              fieldname = f.getName
+            }
             val op = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).op() else "="
 
             val paramName = ":" + f.getName
