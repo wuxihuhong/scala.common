@@ -11,7 +11,7 @@ class Navigator[T <: Serializable](val datas: java.util.List[T], val count: Long
 
   lazy val totalPages = (count - 1) / pagesize + 1
 
-  def hasNext = (pagesize * page < count)
+  def hasNext = (pagesize * (page+1) < count)
 
   def hasPrev = page > 0
 }
