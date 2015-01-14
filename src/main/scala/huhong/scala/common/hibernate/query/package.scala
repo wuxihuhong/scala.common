@@ -101,10 +101,19 @@ package object query {
               }
             }
           } else {
-            val tablename = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).tablename() else null
+            var tablename = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).tablename() else null
             var fieldname = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).value() else f.getName
             if (fieldname.equals("")) {
               fieldname = f.getName
+            }
+            if (StringUtils.isEmpty(tablename)) {
+              val tableDefine = tables
+
+              if (StringUtils.isEmpty(tableDefine(0).aliases)) {
+                tablename = tableDefine(0).name
+              } else {
+                tablename = tableDefine(0).aliases
+              }
             }
             val op = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).op() else "="
 
