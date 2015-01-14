@@ -9,11 +9,11 @@ class Navigator[T <: Serializable](val datas: java.util.List[T], val count: Long
 
   def this(datas: List[T], count: Long, page: Int, pagesize: Int) = this(datas.asJava, count, page, pagesize)
 
-  val totalPage = ((count + pagesize - 1) / pagesize).toInt
+  lazy val totalPages = (count - 1) / pagesize + 1
 
-  def isNext = (pagesize + 1) * page >= count
+  def hasNext = (pagesize * page < count)
 
-  def isPrev = page != 0
+  def hasPrev = page > 0
 }
 
 object Navigator {
@@ -32,6 +32,7 @@ object Navigator {
   }
 
   def apply[T <: Serializable](datas: java.util.List[T], count: Long, page: Int, pagesize: Int) = new Navigator[T](datas, count, page, pagesize)
+
   def apply[T <: Serializable](datas: List[T], count: Long, page: Int, pagesize: Int) = new Navigator[T](datas, count, page, pagesize)
 }
 
