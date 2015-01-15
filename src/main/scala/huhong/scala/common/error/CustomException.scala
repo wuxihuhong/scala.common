@@ -1,6 +1,8 @@
 package huhong.scala.common.error
 
-class CustomException(msg: String = null, cause: Throwable = null, enableSuppression: Boolean = true, writableStackTrace: Boolean = true)
-  extends Exception(msg, cause, enableSuppression, writableStackTrace) {
+import scala.beans.BeanProperty
+
+class CustomException( msg: String = null, cause: Throwable = null)
+  extends Exception(msg, cause) {
 
 }

@@ -35,7 +35,7 @@ package object query {
 
     def toCountHQL(): String = {
       val tablename = if (StringUtils.isEmpty(tables.head.aliases)) tables.head.name else tables.head.aliases
-      val hql = s"select count($tablename.*) " + toHQL()
+      val hql = s"select count($tablename) " + toHQL()
       hql
     }
 
@@ -117,7 +117,7 @@ package object query {
 
           if (f.isAnnotationPresent(classOf[where])) {
             val where = f.getAnnotation(classOf[where])
-            val qs = WhereQuery(where.value(), ":" + f.getName, valueOpt.get)
+            val qs = WhereQuery(where.value(),f.getName, valueOpt.get)
             if (qfs == null) {
               qfs = new QueryFields(qs.asInstanceOf[QuerySupport])
 
@@ -145,7 +145,7 @@ package object query {
             }
             val op = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).op() else "="
 
-            val paramName = ":" + f.getName
+            val paramName =  f.getName
             if (qfs == null) {
               qfs = QueryFields(fieldname, valueOpt.get, tablename, paramName, op)
             } else {
@@ -176,7 +176,6 @@ package object query {
   private case class QueryField(name: String, conditionValue: Any, tableName: String = null, paramName: String = null, operator: String = "=") extends Serializable with HQLSupport with ParametersSupport {
 
 
-    if (paramName != null && !paramName.startsWith(":")) assert(false, "参数名卡头必须是:")
     if (operator.toLowerCase().equals("in")) {
       if (!conditionValue.isInstanceOf[JCollection[_]] && !conditionValue.isInstanceOf[Array[_]] ||
         !conditionValue.isInstanceOf[Seq[_]]) {
@@ -194,11 +193,11 @@ package object query {
 
       val hql = operator.toLowerCase() match {
         case "in" => {
-          s"$name in ($paramName)"
+          s"$name in (:$paramName)"
         }
         case _ => {
           if (paramName != null)
-            s"$name $operator $paramName"
+            s"$name $operator :$paramName"
           else
             s"$name $operator ?"
         }
@@ -208,18 +207,15 @@ package object query {
       tn + hql
     }
 
-    def toParams(): Seq[(String, Any)] = Seq(((if (paramName == null) s":$name" else paramName), conditionValue))
+    def toParams(): Seq[(String, Any)] = Seq(((if (paramName == null) s"$name" else paramName), conditionValue))
 
 
   }
 
   private case class WhereQuery(hql: String, paramName: String, conditionValue: Any) extends Serializable with HQLSupport with ParametersSupport {
 
-    if (!paramName.startsWith(":")) {
-      assert(false, "参数名卡头必须是:")
-    }
 
-    def toHQL(): String = hql.replace("?", paramName)
+    def toHQL(): String = hql.replace("?", s":$paramName")
 
     def toParams(): Seq[(String, Any)] = Seq((paramName, conditionValue))
   }

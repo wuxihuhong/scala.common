@@ -1,19 +1,49 @@
 package huhong.scala.navigator
 
 import java.io.Serializable
+import scala.beans.BeanProperty
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
 
-class Navigator[T <: Serializable](val datas: java.util.List[T], val count: Long, val page: Int, val pagesize: Int) extends Serializable {
+class Navigator[T <: Serializable](@BeanProperty var datas: java.util.List[T], @BeanProperty var count: Long, @BeanProperty var page: Int, @BeanProperty var pagesize: Int) extends Serializable {
 
-  def this(datas: List[T], count: Long, page: Int, pagesize: Int) = this(datas.asJava, count, page, pagesize)
 
-  lazy val totalPages = (count - 1) / pagesize + 1
+  @BeanProperty
+  val totalPages = (count - 1) / pagesize + 1
 
-  def hasNext = (pagesize * (page+1) < count)
+  @BeanProperty
+  def hasNext = (pagesize * (page + 1) < count)
+
+  @BeanProperty
+  def hasPrev = page > 0
+
+  @BeanProperty
+  val next = hasNext
+
+  @BeanProperty
+  val prev = hasPrev
+
+  def asScala = new ScalaNavigator(datas.asScala, count, page, pagesize)
+}
+
+class ScalaNavigator[T <: Serializable](val datas: Seq[T], val count: Long, val page: Int, val pagesize: Int) extends Serializable {
+
+
+  val totalPages = (count - 1) / pagesize + 1
+
+
+  def hasNext = (pagesize * (page + 1) < count)
 
   def hasPrev = page > 0
+
+
+  val next = hasNext
+
+
+  val prev = hasPrev
+
+  def asJava = new Navigator(datas.asJava, count, page, pagesize)
 }
 
 object Navigator {
