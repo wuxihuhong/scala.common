@@ -3,7 +3,7 @@ package huhong.scala.common.hibernate
 import java.util.{Collection => JCollection}
 
 
-import huhong.scala.common.{where, or, query_field, querytables}
+import huhong.scala.common._
 import org.springframework.util.StringUtils
 
 import scala.collection.JavaConversions._
@@ -28,12 +28,40 @@ package object query {
 
   type QuerySupport = HQLSupport with ParametersSupport
 
-  abstract class Query extends HQLSupport with ParametersSupport {
+  trait Query {
     def tables: Seq[QueryTable]
 
-    def queryFields: QueryFields;
+    def queryFields: QueryFields
+
+    def toCountHQL(): String = {
+      val tablename = if (StringUtils.isEmpty(tables.head.aliases)) tables.head.name else tables.head.aliases
+      val hql = s"select count($tablename.*) " + toHQL()
+      hql
+    }
 
 
+    def toActualHql(): String = {
+      val hql = toHQL()
+      hql.trim + " " + toOrderByHql()
+    }
+
+    def toOrderByHql(): String = {
+      val clz = this.getClass
+      if (clz.isAnnotationPresent(classOf[orderby])) {
+        val orderbyHql = clz.getAnnotation(classOf[orderby]).value().trim()
+        if (orderbyHql.startsWith("order by")) {
+          orderbyHql
+        } else {
+          s"order by $orderbyHql"
+        }
+      } else {
+        ""
+      }
+    }
+
+    def toHQL(): String
+
+    def toParams(): Seq[(String, Any)]
   }
 
 

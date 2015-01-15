@@ -23,6 +23,7 @@ object Main extends App {
 
 
   @querytables(tables = Array(new querytable(value = "User", alias = "u")))
+  @orderby(value="order by u.createDate desc")
   class UserQuery extends OptionFieldQuery {
 
 
@@ -43,8 +44,9 @@ object Main extends App {
   val userQuery = new UserQuery
   userQuery.password = Some("123456")
   userQuery.username = Some("%huhong%")
-  println(userQuery.toHQL())
+  println(userQuery.toActualHql())
   println(userQuery.toParams())
+  println(userQuery.toCountHQL())
   //  val ret = userQuery.getTypeTag(userQuery).tpe.members.filter(_.typeSignature <:< typeOf[Option[_]])
   //  val mirror = runtimeMirror(this.getClass.getClassLoader)
   //  val instanceMirror = mirror.reflect(userQuery)

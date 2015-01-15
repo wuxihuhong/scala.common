@@ -2,11 +2,13 @@ name := "scala-common"
 
 organization := "com.github.wuxihuhong"
 
-version := "1.0.0-M3-SNAPSHOT"
+version := "1.0.0-M4-SNAPSHOT"
 
 scalaVersion := "2.10.4"
 
 scalacOptions ++= Seq("-deprecation", "-unchecked")
+
+javacOptions ++= Seq("-encoding", "UTF-8", "-source", "1.6", "-target", "1.6", "-Xlint:unchecked", "-Xlint:deprecation")
 
 libraryDependencies ++= Seq(
   "org.springframework" % "spring-context" % "4.1.2.RELEASE",

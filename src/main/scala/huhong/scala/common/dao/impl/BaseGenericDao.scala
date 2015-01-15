@@ -96,5 +96,22 @@ class BaseGenericDao[E <: Serializable : Manifest, PK <: Serializable : Manifest
 
   }
 
+  @throws(classOf[Throwable])
+  def merge(e: E): E = {
+    session.merge(e)
+    e
+  }
 
+  @throws(classOf[Throwable])
+  def merge(id: PK, e: E, nullable: Boolean): E = {
+    val dbobj = this.get(id)
+
+    if (dbobj != null) {
+      copyProperties(e, dbobj, nullable)
+      merge(dbobj)
+    } else {
+      throw new CustomException("id:" + id + " is null,update fail.")
+    }
+    e
+  }
 }

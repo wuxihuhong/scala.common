@@ -17,6 +17,7 @@ trait GenericDao[E <: Serializable, PK <: Serializable] {
 
   @throws(classOf[Throwable])
   def javaList(begin: Int, end: Int): java.util.List[E]
+
   @throws(classOf[Throwable])
   def javaList(): java.util.List[E]
 
@@ -28,10 +29,21 @@ trait GenericDao[E <: Serializable, PK <: Serializable] {
 
   @throws(classOf[Throwable])
   def update(id: PK, e: E): E = update(id, e, false)
+
   @throws(classOf[Throwable])
   def update(id: PK, e: E, nullable: Boolean): E
+
   @throws(classOf[Throwable])
   def update(e: E): E
+
+  @throws(classOf[Throwable])
+  def merge(e: E): E
+
+  @throws(classOf[Throwable])
+  def merge(id: PK, e: E, nullable: Boolean): E
+
+  @throws(classOf[Throwable])
+  def merge(id: PK, e: E): E = merge(id, e, false)
 
   @throws(classOf[Throwable])
   def delete(e: E): Unit
@@ -52,7 +64,12 @@ trait GenericDao[E <: Serializable, PK <: Serializable] {
   def ->(data: E): E = update(data)
 
   @throws(classOf[Throwable])
-  def ->(id: PK, data: E) = update(id, data)
+  def ->(id: PK, data: E): E = update(id, data)
+
+  @throws(classOf[Throwable])
+  def -->(id: PK, data: E): E = merge(id, data)
+
+  def -->(data: E): E = merge(data)
 
   @throws(classOf[Throwable])
   def -(data: E) = delete(data)
@@ -70,5 +87,5 @@ trait GenericDao[E <: Serializable, PK <: Serializable] {
   def count(q: Query): Long = q.count()
 
 
-  def session():Session;
+  def session(): Session;
 }
