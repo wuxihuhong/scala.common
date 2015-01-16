@@ -2,7 +2,7 @@ name := "scala-common"
 
 organization := "com.github.wuxihuhong"
 
-version := "1.0.0-M4-SNAPSHOT"
+version := "1.0.0-M5-SNAPSHOT"
 
 scalaVersion := "2.10.4"
 
@@ -29,7 +29,9 @@ libraryDependencies ++= Seq(
   "org.scalatest" % "scalatest_2.10" % "2.2.2" % "test",
   "org.scala-lang" % "jline" % "2.10.4",
   "javax.servlet" % "javax.servlet-api" % "3.0.1",
-  "net.liftweb" %% "lift-json" % "2.5"
+  "net.liftweb" %% "lift-json" % "2.5",
+  "org.hibernate" % "hibernate-search-orm" % "5.0.0.Final",
+  "javax.enterprise" % "cdi-api" % "1.0-SP4"
 )
 
 publishMavenStyle := true

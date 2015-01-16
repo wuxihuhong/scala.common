@@ -2,7 +2,7 @@ package huhong.scala.common.dao.impl
 
 import huhong.scala.common.unable_update
 
-import huhong.scala.common.dao.GenericDao
+import huhong.scala.common.dao.{IndexSessionDaoSupport, GenericDao}
 import java.io.Serializable
 import org.hibernate.{Session, SessionFactory}
 import huhong.scala.common.error.CustomException
@@ -12,7 +12,7 @@ class BaseGenericDao[E <: Serializable : Manifest, PK <: Serializable : Manifest
 
   implicit def session() = sf.getCurrentSession
 
-  val entityCls = manifest[E].runtimeClass
+  def entityCls = manifest[E].runtimeClass
 
   @throws(classOf[Exception])
   def javaList(): java.util.List[E] = {
@@ -114,4 +114,6 @@ class BaseGenericDao[E <: Serializable : Manifest, PK <: Serializable : Manifest
     }
     e
   }
+
+
 }

@@ -48,10 +48,13 @@
                 <prop key="hibernate.show_sql">true</prop>
                 <prop key="hibernate.format_sql">true</prop>
                 <prop key="hibernate.hbm2ddl.auto">update</prop>
+                <prop key="hibernate.search.default.directory_provider">
+                    org.hibernate.search.store.impl.FSDirectoryProvider</prop>
+                <prop key="hibernate.search.default.indexBase">/Users/huhong/Documents/scala.common/index</prop>
 
             </props>
         </property>
-        <property name="packagesToScan" value="com.huhong.common.test.domain"/>
+        <property name="packagesToScan" value="huhong.scala.common.test.domain"/>
     </bean>
     <bean id="transactionManager"
           class="org.springframework.orm.hibernate4.HibernateTransactionManager">

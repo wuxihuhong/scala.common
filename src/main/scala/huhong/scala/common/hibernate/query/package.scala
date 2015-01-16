@@ -26,6 +26,7 @@ package object query {
     def toParams(): Seq[(String, Any)];
   }
 
+
   type QuerySupport = HQLSupport with ParametersSupport
 
   trait Query {
@@ -69,6 +70,7 @@ package object query {
 
 
     def queryFields: QueryFields = createQueryFields()
+
 
     def tables: Seq[QueryTable] = {
 
@@ -117,7 +119,7 @@ package object query {
 
           if (f.isAnnotationPresent(classOf[where])) {
             val where = f.getAnnotation(classOf[where])
-            val qs = WhereQuery(where.value(),f.getName, valueOpt.get)
+            val qs = WhereQuery(where.value(), f.getName, valueOpt.get)
             if (qfs == null) {
               qfs = new QueryFields(qs.asInstanceOf[QuerySupport])
 
@@ -145,7 +147,7 @@ package object query {
             }
             val op = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).op() else "="
 
-            val paramName =  f.getName
+            val paramName = f.getName
             if (qfs == null) {
               qfs = QueryFields(fieldname, valueOpt.get, tablename, paramName, op)
             } else {
@@ -162,6 +164,8 @@ package object query {
 
       qfs
     }
+
+
   }
 
 

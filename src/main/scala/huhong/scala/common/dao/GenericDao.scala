@@ -6,6 +6,10 @@ import org.hibernate.{Session, Query}
 import java.io.Serializable
 
 trait GenericDao[E <: Serializable, PK <: Serializable] {
+
+
+  def entityCls(): Class[_]
+
   @throws(classOf[Throwable])
   def list(): List[E] = {
 
