@@ -12,8 +12,5 @@ import java.lang.annotation.Target;
         java.lang.annotation.ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-public @interface where {
-    String value();
-
-    Class<?> analyzerImpl() default Void.class;
+public @interface not {
 }

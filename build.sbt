@@ -31,7 +31,8 @@ libraryDependencies ++= Seq(
   "javax.servlet" % "javax.servlet-api" % "3.0.1",
   "net.liftweb" %% "lift-json" % "2.5",
   "org.hibernate" % "hibernate-search-orm" % "5.0.0.Final",
-  "javax.enterprise" % "cdi-api" % "1.0-SP4"
+  "javax.enterprise" % "cdi-api" % "1.0-SP4",
+  "org.apache.lucene" % "lucene-queryparser" % "4.10.2"
 )
 
 publishMavenStyle := true

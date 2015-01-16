@@ -1,11 +1,15 @@
 package huhong.scala.common.hibernate
 
-import java.util.{Collection => JCollection}
+import java.util.{Collection => JCollection, Date}
 
 
 import huhong.scala.common._
+import org.apache.lucene.analysis.Analyzer
+import org.apache.lucene.index.Term
+import org.apache.lucene.queryparser.classic.QueryParser
+import org.hibernate.search.query.dsl.QueryBuilder
 import org.springframework.util.StringUtils
-
+import org.apache.lucene.search.{Query => LuceneQuery, _}
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
@@ -65,8 +69,13 @@ package object query {
     def toParams(): Seq[(String, Any)]
   }
 
+  trait IndexQuery {
+    def toIndexQuery(qb: QueryBuilder): LuceneQuery
 
-  abstract class OptionFieldQuery extends Query {
+    def toIndexSort(): Sort
+  }
+
+  abstract class OptionFieldQuery extends Query with IndexQuery {
 
 
     def queryFields: QueryFields = createQueryFields()
@@ -163,6 +172,166 @@ package object query {
       })
 
       qfs
+    }
+
+
+    def toIndexQuery(qb: QueryBuilder): LuceneQuery = {
+      val clz = this.getClass
+
+      val fields = clz.getDeclaredFields.filter(f => {
+        f.getType.isAssignableFrom(classOf[Option[_]])
+      })
+
+      var luceneQuery: BooleanQuery = null
+
+      fields foreach (f => {
+
+        f.setAccessible(true)
+        val valueOpt = f.get(this).asInstanceOf[Option[_]]
+        if (valueOpt.isDefined) {
+
+          if (f.isAnnotationPresent(classOf[where])) {
+            val where = f.getAnnotation(classOf[where])
+
+
+            val qp = if (where.analyzerImpl().getName.equals(classOf[Void].getName)) {
+              new QueryParser(f.getName, new org.apache.lucene.analysis.standard.StandardAnalyzer)
+            } else {
+              new QueryParser(f.getName, where.analyzerImpl().newInstance().asInstanceOf[Analyzer])
+            }
+
+
+            val q = qp.parse(where.value())
+
+            if (f.isAnnotationPresent(classOf[or])) {
+              luceneQuery.add(q, BooleanClause.Occur.SHOULD)
+            }
+            else if (f.isAnnotationPresent(classOf[not])) {
+              luceneQuery.add(q, BooleanClause.Occur.MUST_NOT)
+            }
+            else {
+              luceneQuery.add(q, BooleanClause.Occur.MUST)
+            }
+          } else {
+
+            var fieldname = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).value() else f.getName
+            if (fieldname.equals("")) {
+              fieldname = f.getName
+            }
+
+            val op = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).op() else "="
+
+
+            if (luceneQuery == null) {
+              luceneQuery = new BooleanQuery()
+              if (f.isAnnotationPresent(classOf[or])) {
+                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb), BooleanClause.Occur.SHOULD)
+              }
+              else if (f.isAnnotationPresent(classOf[not])) {
+                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb), BooleanClause.Occur.MUST_NOT)
+              }
+              else {
+                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb), BooleanClause.Occur.MUST)
+              }
+            } else {
+              if (f.isAnnotationPresent(classOf[or])) {
+                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb), BooleanClause.Occur.SHOULD)
+              }
+              else if (f.isAnnotationPresent(classOf[not])) {
+                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb), BooleanClause.Occur.MUST_NOT)
+              }
+              else {
+                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb), BooleanClause.Occur.MUST)
+              }
+            }
+          }
+        }
+
+      })
+      luceneQuery
+    }
+
+    def toIndexSort(): Sort = {
+
+      if (this.getClass.isAnnotationPresent(classOf[sorts])) {
+        val sortinfos = this.getClass.getAnnotation(classOf[sorts])
+        if (sortinfos.value().length == 0) {
+          new Sort
+        } else {
+          val sortFields = sortinfos.value().map(sortinfo => {
+            new SortField(sortinfo.value(), sortinfo.sortType(), sortinfo.reverse())
+          })
+          new Sort(sortFields: _*)
+        }
+      }
+
+      else if (this.getClass.isAnnotationPresent(classOf[sort])) {
+        val sortinfo = this.getClass.getAnnotation(classOf[sort])
+
+        new Sort(new SortField(sortinfo.value(), sortinfo.sortType(), sortinfo.reverse()))
+      } else {
+        null
+      }
+    }
+
+
+    private def createChildLuceneQuery(fieldName: String, value: Any, op: String, qb: QueryBuilder): LuceneQuery = {
+      value match {
+        case str: String if (op.equals("like")) => {
+          createPhraseQuery(fieldName, str)
+        }
+        case str: String if (op.equals("=")) => {
+          qb.keyword().onField(fieldName).matching(str).createQuery()
+        }
+        case number: Number if (op.equals("=")) => {
+          qb.range().onField(fieldName).from(number).to(number).createQuery()
+        }
+        case number: Number if (op.equals("<")) => {
+          qb.range().onField(fieldName).below(number).createQuery()
+        }
+        case number: Number if (op.equals(">")) => {
+          qb.range().onField(fieldName).above(number).createQuery()
+        }
+        case number: Number if (op.equals("<=")) => {
+          qb.range().onField(fieldName).below(number).excludeLimit().createQuery()
+        }
+        case number: Number if (op.equals(">=")) => {
+          qb.range().onField(fieldName).above(number).excludeLimit().createQuery()
+        }
+        case date: Date if (op.equals("<")) => {
+          qb.range().onField(fieldName).below(date).createQuery()
+        }
+        case date: Date if (op.equals(">")) => {
+          qb.range().onField(fieldName).above(date).createQuery()
+        }
+        case date: Date if (op.equals("<=")) => {
+          qb.range().onField(fieldName).below(date).excludeLimit().createQuery()
+        }
+        case date: Date if (op.equals(">=")) => {
+          qb.range().onField(fieldName).above(date).excludeLimit().createQuery()
+        }
+        case date: Date if (op.equals("=")) => {
+          qb.range().onField(fieldName).from(date).to(date).createQuery()
+        }
+        case boolean: Boolean => {
+          qb.keyword().onField(fieldName).matching(boolean.toString).createQuery()
+        }
+        case boolean: java.lang.Boolean => {
+          qb.keyword().onField(fieldName).matching(boolean.toString).createQuery()
+        }
+      }
+    }
+
+
+    private def createPhraseQuery(field: String, value: String, slop: Int = 0) = {
+      val pq = new PhraseQuery
+      value.foreach {
+        c => {
+          pq.add(new Term(field, c.toString))
+          pq.setSlop(slop)
+        }
+      }
+      pq
     }
 
 

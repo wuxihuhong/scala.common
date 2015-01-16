@@ -77,18 +77,22 @@ class BaseTest extends AbstractTransactionalJUnit4SpringContextTests {
 
   @Test
   def pointTest: Unit = {
-//    val hotel = new Hotel
+    //    val hotel = new Hotel
+    //
+    //    hotel.latitude = 31.4891959
+    //    hotel.longitude = 120.3077468
+    //    hotel.address = "无锡新区"
+    //    hotel.name = "无锡中意大酒店"
+    //    hotel.rooms=500
+    //    hotel.deleted=false
+    //
+    //
+    //    hotelDao + hotel
 
-//    hotel.latitude = 31.4891959
-//    hotel.longitude = 120.3077468
-//    hotel.address = "无锡新区"
-//    hotel.name = "无锡大饭店"
-//    hotelDao + hotel
-
-    //    import scala.collection.JavaConverters._
-    //    val latitude = 31.4891959
-    //    val longitude = 120.3077468
-    //    Predef.println(hotelDao.searchBy(latitude, longitude).asScala.toJsonString())
+    import scala.collection.JavaConverters._
+    val latitude = 31.4891959
+    val longitude = 120.3077468
+    Predef.println(hotelDao.search("无锡中意大酒店", "锡新",501) .asScala.toJsonString())
   }
 
   //@Test

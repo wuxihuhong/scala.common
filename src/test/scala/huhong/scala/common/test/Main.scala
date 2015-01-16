@@ -6,7 +6,9 @@ import java.util.Date
 
 
 import huhong.scala.common._
+import huhong.scala.common.test.dao.{HotelDao, UserDao}
 import huhong.scala.test.domain.User
+import org.springframework.context.support.ClassPathXmlApplicationContext
 
 import scala.beans.BeanProperty
 import scala.concurrent.ExecutionContext
@@ -21,16 +23,20 @@ object Main extends App {
 
   import huhong.scala.common.hibernate.query._
 
+  val ctx = new ClassPathXmlApplicationContext("beans.xml")
+  val hd = ctx.getBean(classOf[HotelDao])
 
   @querytables(tables = Array(new querytable(value = "User", alias = "u")))
-  @orderby(value="order by u.createDate desc")
+  @orderby(value = "order by u.createDate desc")
+  @sort(value="address")
   class UserQuery extends OptionFieldQuery {
 
 
     @query_field(value = "accout_name", op = "like", tablename = "u")
     var username: Option[String] = None
 
-    @where("u.username=?")
+    //@where("u.username=?")
+    @query_field(value = "address", op = "=", tablename = "u")
     var password: Option[String] = None
   }
 
@@ -47,6 +53,10 @@ object Main extends App {
   println(userQuery.toActualHql())
   println(userQuery.toParams())
   println(userQuery.toCountHQL())
+
+  println(userQuery.toIndexQuery(hd.indexQueryBuilder))
+
+  println(userQuery.toIndexSort())
   //  val ret = userQuery.getTypeTag(userQuery).tpe.members.filter(_.typeSignature <:< typeOf[Option[_]])
   //  val mirror = runtimeMirror(this.getClass.getClassLoader)
   //  val instanceMirror = mirror.reflect(userQuery)

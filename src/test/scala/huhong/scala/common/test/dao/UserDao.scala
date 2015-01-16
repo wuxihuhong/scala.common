@@ -2,7 +2,7 @@ package huhong.scala.common.test.dao
 
 import javax.transaction.Transactional
 
-import huhong.scala.common.dao.SessionDaoSupport
+import huhong.scala.common.dao.{IndexQueryDaoSupport, SessionDaoSupport}
 import huhong.scala.common.dao.impl.BaseGenericDao
 import org.hibernate.SessionFactory
 import org.hibernate.search.Search
@@ -16,7 +16,8 @@ import huhong.scala.test.domain.User
  */
 @Repository
 @Transactional
-class UserDao @Autowired protected(sf: SessionFactory) extends BaseGenericDao[User, String](sf) with SessionDaoSupport with InitializingBean {
+class UserDao @Autowired protected(sf: SessionFactory) extends BaseGenericDao[User, String](sf)
+with SessionDaoSupport{
 
 
   def startIndex() {
