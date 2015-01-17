@@ -220,28 +220,28 @@ package object query {
             }
 
             val op = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).op() else "="
-
+            val lower = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).lower() else false
 
             if (luceneQuery == null) {
               luceneQuery = new BooleanQuery()
               if (f.isAnnotationPresent(classOf[or])) {
-                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb), BooleanClause.Occur.SHOULD)
+                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb, lower), BooleanClause.Occur.SHOULD)
               }
               else if (f.isAnnotationPresent(classOf[not])) {
-                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb), BooleanClause.Occur.MUST_NOT)
+                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb, lower), BooleanClause.Occur.MUST_NOT)
               }
               else {
-                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb), BooleanClause.Occur.MUST)
+                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb, lower), BooleanClause.Occur.MUST)
               }
             } else {
               if (f.isAnnotationPresent(classOf[or])) {
-                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb), BooleanClause.Occur.SHOULD)
+                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb, lower), BooleanClause.Occur.SHOULD)
               }
               else if (f.isAnnotationPresent(classOf[not])) {
-                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb), BooleanClause.Occur.MUST_NOT)
+                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb, lower), BooleanClause.Occur.MUST_NOT)
               }
               else {
-                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb), BooleanClause.Occur.MUST)
+                luceneQuery.add(createChildLuceneQuery(fieldname, valueOpt.get, op, qb, lower), BooleanClause.Occur.MUST)
               }
             }
           }
@@ -275,16 +275,20 @@ package object query {
     }
 
 
-    private def createChildLuceneQuery(fieldName: String, value: Any, op: String, qb: QueryBuilder): LuceneQuery = {
+    private def createChildLuceneQuery(fieldName: String, value: Any, op: String, qb: QueryBuilder, lower: Boolean): LuceneQuery = {
       value match {
-        case str: String if (op.equals("like")) => {
+        case str: String if (op.equals("phrase")) => {
           createPhraseQuery(fieldName, str)
         }
         case str: String if (op.equals("wildcard")) => {
-          qb.keyword().wildcard().onField(fieldName).matching(str).createQuery()
+          qb.keyword().wildcard().onField(fieldName).matching((if (lower) str.toLowerCase else str)).createQuery()
         }
         case str: String if (op.equals("=")) => {
           qb.keyword().onField(fieldName).matching(str).createQuery()
+        }
+        case str: String if (op.equals("like")) => {
+          qb.bool().should(qb.keyword().onField(fieldName).matching(str).createQuery()).
+            should(qb.keyword().wildcard().onField(fieldName).matching((if (lower) str.toLowerCase else str)).createQuery()).createQuery()
         }
         case number: Number if (op.equals("=")) => {
           qb.range().onField(fieldName).from(number).to(number).createQuery()

@@ -21,5 +21,5 @@ public @interface query_field {
 
     String tablename() default "";
 
-
+    boolean lower() default false;
 }
