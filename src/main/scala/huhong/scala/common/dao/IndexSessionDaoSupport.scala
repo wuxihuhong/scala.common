@@ -29,7 +29,9 @@ trait IndexQueryDaoSupport[T <: Serializable] {
 
 
   def indexQuery(query: IndexQuery, page: Int, pageSize: Int): Navigator[T] = {
-    val hibQuery = fullTextSession().createFullTextQuery(query.toIndexQuery(indexQueryBuilder), entityCls())
+    val luceneQuery = query.toIndexQuery(indexQueryBuilder)
+    QueryDaoSupport.logger.debug("lucene query:"+luceneQuery.toString())
+    val hibQuery = fullTextSession().createFullTextQuery(luceneQuery, entityCls())
     val count = hibQuery.getResultSize
     val paperInfo = Navigator.getPageRange(count, page, pageSize)
     val begin = paperInfo.begin

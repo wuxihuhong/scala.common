@@ -280,6 +280,9 @@ package object query {
         case str: String if (op.equals("like")) => {
           createPhraseQuery(fieldName, str)
         }
+        case str: String if (op.equals("wildcard")) => {
+          qb.keyword().wildcard().onField(fieldName).matching(str).createQuery()
+        }
         case str: String if (op.equals("=")) => {
           qb.keyword().onField(fieldName).matching(str).createQuery()
         }

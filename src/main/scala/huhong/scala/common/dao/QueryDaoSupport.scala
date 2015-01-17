@@ -15,15 +15,14 @@ trait QueryDaoSupport[T <: Serializable] {
   self: GenericDao[T, _ <: Serializable] =>
 
 
-
   def query(q: Query, page: Int, pageSize: Int): Navigator[T] = {
     val params = q.toParams()
     val countQuery = session.createQuery(q.toCountHQL())
 
 
-    if(QueryDaoSupport.logger.isDebugEnabled()){
-      QueryDaoSupport.logger.debug("query count hql:"+q.toCountHQL())
-      QueryDaoSupport.logger.debug("query hql:"+q.toActualHql())
+    if (QueryDaoSupport.logger.isDebugEnabled()) {
+      QueryDaoSupport.logger.debug("query count hql:" + q.toCountHQL())
+      QueryDaoSupport.logger.debug("query hql:" + q.toActualHql())
     }
 
     val query = session().createQuery(q.toActualHql())
@@ -34,7 +33,7 @@ trait QueryDaoSupport[T <: Serializable] {
 
     val count = countQuery.count()
 
-    if(QueryDaoSupport.logger.isDebugEnabled()){
+    if (QueryDaoSupport.logger.isDebugEnabled()) {
       QueryDaoSupport.logger.debug(s"found data size:$count")
     }
     val paperInfo = Navigator.getPageRange(count, page, pageSize)
@@ -56,6 +55,6 @@ trait QueryDaoSupport[T <: Serializable] {
   }
 }
 
-object QueryDaoSupport{
-  private lazy val logger=LoggerFactory.getLogger(classOf[Query])
+object QueryDaoSupport {
+  lazy val logger = LoggerFactory.getLogger(classOf[Query])
 }
