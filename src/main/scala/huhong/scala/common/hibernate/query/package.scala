@@ -78,6 +78,7 @@ package object query {
   abstract class OptionFieldQuery extends Query with IndexQuery {
 
 
+
     def queryFields: QueryFields = createQueryFields()
 
 
@@ -278,7 +279,8 @@ package object query {
     private def createChildLuceneQuery(fieldName: String, value: Any, op: String, qb: QueryBuilder, lower: Boolean): LuceneQuery = {
       value match {
         case str: String if (op.equals("phrase")) => {
-          createPhraseQuery(fieldName, str)
+          //createPhraseQuery(fieldName, if (lower) str.toLowerCase else str)
+          qb.phrase().withSlop(0).onField(fieldName).sentence(if (lower) str.toLowerCase else str).createQuery()
         }
         case str: String if (op.equals("wildcard")) => {
           qb.keyword().wildcard().onField(fieldName).matching((if (lower) str.toLowerCase else str)).createQuery()
@@ -286,6 +288,7 @@ package object query {
         case str: String if (op.equals("=")) => {
           qb.keyword().onField(fieldName).matching(str).createQuery()
         }
+
         case str: String if (op.equals("like")) => {
           qb.bool().should(qb.keyword().onField(fieldName).matching(str).createQuery()).
             should(qb.keyword().wildcard().onField(fieldName).matching((if (lower) str.toLowerCase else str)).createQuery()).createQuery()

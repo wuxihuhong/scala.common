@@ -1,13 +1,15 @@
 package huhong.scala.common.test
 
-import java.io.StringWriter
+import java.io.{StringReader, StringWriter}
 import java.util
 import java.util.Date
 
 
 import huhong.scala.common._
+import huhong.scala.common.lucene.analysis.CharAnalyzer
 import huhong.scala.common.test.dao.{HotelDao, UserDao}
 import huhong.scala.test.domain.User
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
 import org.springframework.context.support.ClassPathXmlApplicationContext
 
 import scala.beans.BeanProperty
@@ -21,6 +23,22 @@ import java.util.{Map => JMap}
  */
 object Main extends App {
 
+
+
+
+ val str="天气不错132abc@#$+-)(*&^.,/"
+
+  val analyzer=new CharAnalyzer
+  val ts=analyzer.tokenStream("test",new StringReader(str))
+  val term = ts.addAttribute(classOf[CharTermAttribute])
+  ts.reset()
+
+  while(ts.incrementToken()){
+    println(term.toString)
+  }
+  ts.end()
+  ts.close()
+
   import huhong.scala.common.hibernate.query._
 
   val ctx = new ClassPathXmlApplicationContext("beans.xml")
@@ -28,7 +46,7 @@ object Main extends App {
 
   @querytables(tables = Array(new querytable(value = "User", alias = "u")))
   @orderby(value = "order by u.createDate desc")
-  @sort(value="address")
+  @sort(value = "address")
   class UserQuery extends OptionFieldQuery {
 
 
