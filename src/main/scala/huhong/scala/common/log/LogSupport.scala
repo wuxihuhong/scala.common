@@ -14,9 +14,9 @@ trait LogSupport {
   }
 
   protected def debug(msg: String, e: Throwable = null) = {
-    if (logger.isDebugEnabled) {
+    //if (logger.isDebugEnabled) {
       logger.debug(msg, e)
-    }
+    //}
   }
 
   protected def error(msg: String, e: Throwable = null) = {

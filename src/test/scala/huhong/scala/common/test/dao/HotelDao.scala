@@ -22,7 +22,7 @@ import org.hibernate.search.query.dsl.{PhraseTermination, Unit}
  */
 @Repository
 @Transactional
-class HotelDao @Autowired protected(sf: SessionFactory) extends BaseGenericDao[Hotel, String](sf) with SessionDaoSupport with IndexQueryDaoSupport[Hotel] {
+class HotelDao @Autowired protected(sf: SessionFactory) extends BaseGenericDao[Hotel, String](sf) with SessionDaoSupport with IndexQueryDaoSupport {
   def searchBy(latitude: Double, longitude: Double) = {
     val coordinates = Point.fromDegrees(latitude, longitude)
     val fullTextSession = Search.getFullTextSession(session())

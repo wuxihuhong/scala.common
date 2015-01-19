@@ -5,9 +5,7 @@ import scala.collection.JavaConverters._
 import org.hibernate.{Session, Query}
 import java.io.Serializable
 
-trait GenericDao[E <: Serializable, PK <: Serializable] {
-
-
+trait GenericDao[E <: Serializable, PK <: Serializable] extends SessionSupport {
   def entityCls(): Class[_]
 
   @throws(classOf[Throwable])
@@ -91,5 +89,4 @@ trait GenericDao[E <: Serializable, PK <: Serializable] {
   def count(q: Query): Long = q.count()
 
 
-  def session(): Session;
 }

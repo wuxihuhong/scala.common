@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory
 /**
  * Created by huhong on 15/1/15.
  */
-trait QueryDaoSupport[T <: Serializable] {
-  self: GenericDao[T, _ <: Serializable] =>
+trait QueryDaoSupport {
+  self:SessionSupport =>
 
 
-  def query(q: Query, page: Int, pageSize: Int): Navigator[T] = {
+  def query[T <:Serializable](q: Query, page: Int, pageSize: Int): Navigator[T] = {
     val params = q.toParams()
     val countQuery = session.createQuery(q.toCountHQL())
 
@@ -44,7 +44,7 @@ trait QueryDaoSupport[T <: Serializable] {
     Navigator[T](data, count, begin, end)
   }
 
-  def query(q: Query): java.util.List[T] = {
+  def query[T <:Serializable](q: Query): java.util.List[T] = {
     val query = session().createQuery(q.toActualHql())
     val params = q.toParams()
     params.foreach(p => {

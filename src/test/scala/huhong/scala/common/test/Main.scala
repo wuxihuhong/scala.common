@@ -6,8 +6,10 @@ import java.util.Date
 
 
 import huhong.scala.common._
+import huhong.scala.common.dao.impl.CommonDao
 import huhong.scala.common.lucene.analysis.CharAnalyzer
 import huhong.scala.common.test.dao.{HotelDao, UserDao}
+import huhong.scala.common.test.domain.Hotel
 import huhong.scala.test.domain.User
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
 import org.springframework.context.support.ClassPathXmlApplicationContext
@@ -24,16 +26,14 @@ import java.util.{Map => JMap}
 object Main extends App {
 
 
+  val str = "天气不错132abc@#$+-)(*&^.,/"
 
-
- val str="天气不错132abc@#$+-)(*&^.,/"
-
-  val analyzer=new CharAnalyzer
-  val ts=analyzer.tokenStream("test",new StringReader(str))
+  val analyzer = new CharAnalyzer
+  val ts = analyzer.tokenStream("test", new StringReader(str))
   val term = ts.addAttribute(classOf[CharTermAttribute])
   ts.reset()
 
-  while(ts.incrementToken()){
+  while (ts.incrementToken()) {
     println(term.toString)
   }
   ts.end()
@@ -47,7 +47,7 @@ object Main extends App {
   @querytables(tables = Array(new querytable(value = "User", alias = "u")))
   @orderby(value = "order by u.createDate desc")
   @sort(value = "address")
-  class UserQuery extends OptionFieldQuery {
+  class UserQuery extends OptionFieldQuery with Serializable {
 
 
     @query_field(value = "accout_name", op = "like", tablename = "u")
@@ -65,6 +65,9 @@ object Main extends App {
   import huhong.scala.common.json._
 
 
+
+
+
   val userQuery = new UserQuery
   userQuery.password = Some("123456")
   userQuery.username = Some("%huhong%")
@@ -72,7 +75,7 @@ object Main extends App {
   println(userQuery.toParams())
   println(userQuery.toCountHQL())
 
-  println(userQuery.toIndexQuery(hd.indexQueryBuilder))
+  println(userQuery.toIndexQuery(hd.indexQueryBuilder[Hotel]))
 
   println(userQuery.toIndexSort())
   //  val ret = userQuery.getTypeTag(userQuery).tpe.members.filter(_.typeSignature <:< typeOf[Option[_]])

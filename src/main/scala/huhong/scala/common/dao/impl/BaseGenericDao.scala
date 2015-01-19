@@ -2,7 +2,7 @@ package huhong.scala.common.dao.impl
 
 import huhong.scala.common.unable_update
 
-import huhong.scala.common.dao.{IndexSessionDaoSupport, GenericDao}
+import huhong.scala.common.dao.{GenericDao}
 import java.io.Serializable
 import org.hibernate.{Session, SessionFactory}
 import huhong.scala.common.error.CustomException

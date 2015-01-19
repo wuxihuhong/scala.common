@@ -9,29 +9,18 @@ import org.hibernate.search.{FullTextSession, Search}
 /**
  * Created by huhong on 15/1/16.
  */
-trait IndexSessionDaoSupport[T <: Serializable] {
-  self: GenericDao[T, _ <: Serializable] =>
+trait IndexQueryDaoSupport {
+  self: SessionSupport =>
 
   def fullTextSession(): FullTextSession = Search.getFullTextSession(session())
 
-  def indexQueryBuilder() = fullTextSession().getSearchFactory.buildQueryBuilder().forEntity(entityCls()).get()
+  def indexQueryBuilder[T <: Serializable : Manifest]() = fullTextSession().getSearchFactory.buildQueryBuilder().forEntity(manifest[T].runtimeClass).get()
 
 
-}
-
-
-trait IndexQueryDaoSupport[T <: Serializable] {
-  self: GenericDao[T, _ <: Serializable] =>
-
-  def fullTextSession(): FullTextSession = Search.getFullTextSession(session())
-
-  def indexQueryBuilder() = fullTextSession().getSearchFactory.buildQueryBuilder().forEntity(entityCls()).get()
-
-
-  def indexQuery(query: IndexQuery, page: Int, pageSize: Int): Navigator[T] = {
-    val luceneQuery = query.toIndexQuery(indexQueryBuilder)
-    QueryDaoSupport.logger.debug("lucene query:"+luceneQuery.toString())
-    val hibQuery = fullTextSession().createFullTextQuery(luceneQuery, entityCls())
+  def indexQuery[T <: Serializable : Manifest](query: IndexQuery, page: Int, pageSize: Int): Navigator[T] = {
+    val luceneQuery = query.toIndexQuery(indexQueryBuilder[T])
+    QueryDaoSupport.logger.debug("lucene query:" + luceneQuery.toString())
+    val hibQuery = fullTextSession().createFullTextQuery(luceneQuery, manifest[T].runtimeClass)
     val count = hibQuery.getResultSize
     val paperInfo = Navigator.getPageRange(count, page, pageSize)
     val begin = paperInfo.begin
