@@ -41,7 +41,10 @@ package object hibernate {
             q.setParameterList(s, c)
           }
           case (s: String, c: Seq[_]) => {
-            q.setParameterList(s, c.asJava)
+            q.setParameterList(s, c.asJavaCollection)
+          }
+          case (s: String, c: Array[_]) => {
+            q.setParameterList(s, c.toList.asJavaCollection)
           }
           case (s: String, a: Any) => {
             q.setParameter(s, a)
@@ -75,7 +78,6 @@ package object hibernate {
       q.list().asInstanceOf[java.util.List[T]]
     }
   }
-
 
 
 }
