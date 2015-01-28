@@ -75,7 +75,7 @@ class BaseGenericDao[E <: Serializable : Manifest, PK <: Serializable : Manifest
   }
 
   @throws(classOf[Exception])
-  protected def copyProperties(src: Serializable, dist: Serializable, setnull: Boolean = false) = {
+  def copyProperties(src: Serializable, dist: Serializable, setnull: Boolean = false) = {
     val cls = src.getClass
     cls.getDeclaredFields().foreach(f => {
       if (!f.isAnnotationPresent(classOf[unable_update]) && !f.isAnnotationPresent(classOf[javax.persistence.Id])) {

@@ -23,3 +23,16 @@ class AnnotationAutoProxyCreator extends AbstractAutoProxyCreator {
     }
   }
 }
+
+
+abstract class MatchAutoProxyCreator extends AbstractAutoProxyCreator {
+  def `match`(beanClass: Class[_], beanName: String, customTargetSource: TargetSource): Boolean
+
+  def getAdvicesAndAdvisorsForBean(beanClass: Class[_], beanName: String, customTargetSource: TargetSource): Array[Object] = {
+    if (`match`(beanClass, beanName, customTargetSource)) {
+      AbstractAutoProxyCreator.PROXY_WITHOUT_ADDITIONAL_INTERCEPTORS
+    } else {
+      AbstractAutoProxyCreator.DO_NOT_PROXY
+    }
+  }
+}
