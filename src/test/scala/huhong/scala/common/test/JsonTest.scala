@@ -1,8 +1,10 @@
 package huhong.scala.common.test
 
 import java.util
+import java.util.Date
 
-import com.google.gson.{GsonBuilder, Gson}
+import com.google.gson.stream.{JsonToken, JsonWriter, JsonReader}
+import com.google.gson.{TypeAdapter, GsonBuilder, Gson}
 import huhong.scala.common.json._
 
 /**
@@ -16,16 +18,27 @@ object JsonTest extends App {
 
     var nullvalue: String = _
 
+    var date:Date=new Date()
+
     list.add("a")
+
+    var name:Option[String]=Some("胡宏")
+
+
+    var bean:Option[TestBean2]=Some(new TestBean2)
   }
 
 
-  val gson = new GsonBuilder().serializeNulls().create()
+  class TestBean2{
+
+    var shit="shit"
+  }
+
 
   var start=System.currentTimeMillis()
-  println(gson.toJson(new TestBean))
+  println(new TestBean().toJsonString())
 
-  gson.fromJson( """{"list":["a"]}""", classOf[TestBean])
+  val bean= """{"list":["a"],"nullvalue":null,"date":1422437731253,"name":{"class":"java.lang.String","value":"胡宏"},"bean":{"class":"huhong.scala.common.test.JsonTest$TestBean2","value":{"shit":"shit"}}}""".toBean[TestBean]
 
   println(System.currentTimeMillis()-start)
 

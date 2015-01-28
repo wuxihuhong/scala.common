@@ -1,12 +1,16 @@
 package huhong.scala.common
 
 import java.io.{StringWriter, Writer, OutputStream, Serializable}
+import java.lang.reflect.Type
+import java.util.Date
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.google.gson.{JsonParser, GsonBuilder}
+import com.google.gson.JsonParser
+import com.google.gson.stream.{JsonToken, JsonReader, JsonWriter}
+import com.google.gson._
 import net.liftweb.json.JsonAST.JArray
 
 import net.liftweb.json._
@@ -36,6 +40,53 @@ package object json {
 
   def NonNullJavaAnyRefFieldSerializer = NonNullFieldSerializer[AnyRef]
 
+  private class LongToDateAdapter extends TypeAdapter[Date] {
+    def write(out: JsonWriter, value: Date): Unit = {
+      this.synchronized {
+        if (value == null) {
+          out.nullValue()
+
+        } else {
+          out.value(value.getTime)
+        }
+      }
+    }
+
+    def read(in: JsonReader): Date = {
+      if (in.peek eq JsonToken.NULL) {
+        in.nextNull
+        null
+      } else {
+        new Date(in.nextLong())
+      }
+    }
+  }
+
+
+  class OptionSerializer extends JsonSerializer[Option[_]] with JsonDeserializer[Option[_]] {
+    def serialize(src: Option[_], typeOfSrc: Type, context: JsonSerializationContext): JsonElement = {
+      val jsonObject = new JsonObject
+      if (src.isDefined) {
+        def value = src.get
+        jsonObject.addProperty("class", value.asInstanceOf[Object].getClass.getName)
+        jsonObject.add("value", context.serialize(value))
+      }
+      jsonObject
+    }
+
+    def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Option[_] = {
+      if (json.isJsonNull) {
+        None
+      } else if (json.isJsonObject && json.getAsJsonObject.entrySet().size() == 0) {
+        None
+      } else {
+        val className = json.getAsJsonObject.get("class").getAsString
+
+        val deserialized = context.deserialize(json.getAsJsonObject.get("value"), Class.forName(className)).asInstanceOf[Any]
+        Option(deserialized)
+      }
+    }
+  }
 
   private val JavaSerializer: PartialFunction[(String, Any), Option[(String, Any)]] = {
     case (name, list: java.util.Collection[_]) => {
@@ -68,7 +119,7 @@ package object json {
   objectMapper.registerModule(DefaultScalaModule)
 
 
-  lazy val gson = new GsonBuilder().serializeNulls().create()
+  lazy val gson = new GsonBuilder().serializeNulls().registerTypeAdapter(classOf[Date], new LongToDateAdapter).registerTypeAdapter(classOf[Option[_]], new OptionSerializer).create()
 
   private lazy val gsonFormat = new GsonBuilder().setPrettyPrinting().create()
   private lazy val jsonParser = new JsonParser
