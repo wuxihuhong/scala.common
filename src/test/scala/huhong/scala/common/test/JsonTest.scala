@@ -5,7 +5,9 @@ import java.util.Date
 
 import com.google.gson.stream.{JsonToken, JsonWriter, JsonReader}
 import com.google.gson.{TypeAdapter, GsonBuilder, Gson}
+import huhong.scala.common.hibernate.query.OptionFieldQuery
 import huhong.scala.common.json._
+import huhong.scala.common.{query_field, orderby, querytable, querytables}
 
 /**
  * Created by huhong on 15/1/28.
@@ -22,7 +24,7 @@ object JsonTest extends App {
 
     list.add("a")
 
-    var name:Option[String]=Some("胡宏")
+    var name:Option[Date]=Some(new Date())
 
 
     var bean:Option[TestBean2]=Some(new TestBean2)
@@ -35,23 +37,45 @@ object JsonTest extends App {
   }
 
 
+  @querytables(tables = Array(new querytable(value = "com.parking.core.domain.Employee", alias = "e")))
+  @orderby(value="e.createDate desc")
+  class EmployeeQuery extends OptionFieldQuery {
+
+    var name: Option[String] = None
+
+    var sex: Option[Int] = None
+
+    var birthdayYear: Option[Integer] = None
+
+    var birthdayMonth: Option[Integer] = None
+
+    var hometown: Option[String] = None
+
+    var maritalStatus: Option[Int] = None
+
+    var tel: Option[String] = None
+
+    @query_field(op = "like")
+    var address: Option[String] = None
+
+    var workNO: Option[String] = None
+
+    @query_field(value = "job.id")
+    var job: Option[String] = None
+
+    var joinDate: Option[Date] = None
+
+    var deleted: Option[Boolean] = Some(false)
+  }
+
   var start=System.currentTimeMillis()
   println(new TestBean().toJsonString())
 
-  val bean= """{"list":["a"],"nullvalue":null,"date":1422437731253,"name":{"class":"java.lang.String","value":"胡宏"},"bean":{"class":"huhong.scala.common.test.JsonTest$TestBean2","value":{"shit":"shit"}}}""".toBean[TestBean]
+  val bean= """{"name":{"value":null,"class":"java.lang.String"},"sex":{"value":null,"class":"java.lang.Integer"},"birthdayYear":{"value":null,"class":"java.lang.Integer"},"birthdayMonth":{"value":null,"class":"java.lang.Integer"},"hometown":{"value":null,"class":"java.lang.String"},"maritalStatus":{"value":null,"class":"java.lang.Integer"},"tel":{"value":null,"class":"java.lang.String"},"address":{"value":null,"class":"java.lang.String"},"workNO":{"value":null,"class":"java.lang.String"},"job":{"value":null,"class":"java.lang.String"},"joinDate":{"value":1422608395000,"class":"java.util.Date"}}""".toBean[EmployeeQuery]
 
   println(System.currentTimeMillis()-start)
 
-  jsonHandler="jackson"
-  start=System.currentTimeMillis()
 
-  println(new TestBean().toJsonString())
-
-  """{"list":["a"]}""".toBean[TestBean]
-
-  println(System.currentTimeMillis()-start)
-  //  println(new TestBean().toJsonString())
-  //
   // val testbean= """{"list":["a"],"nullvalue":null}""".toBean[TestBean]
   //
   //  println(testbean.list.get(0))

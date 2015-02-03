@@ -8,14 +8,16 @@ import huhong.scala.navigator.Navigator
 import huhong.scala.common.hibernate._
 import org.slf4j.LoggerFactory
 
+import scala.collection.JavaConverters._
+
 /**
  * Created by huhong on 15/1/15.
  */
 trait QueryDaoSupport {
-  self:SessionSupport =>
+  self: SessionSupport =>
 
 
-  def query[T <:Serializable](q: Query, page: Int, pageSize: Int): Navigator[T] = {
+  def query[T <: Serializable](q: Query, page: Int, pageSize: Int): Navigator[T] = {
     val params = q.toParams()
     val countQuery = session.createQuery(q.toCountHQL())
 
@@ -27,8 +29,22 @@ trait QueryDaoSupport {
 
     val query = session().createQuery(q.toActualHql())
     params.foreach(p => {
-      query.setParameter(p._1, p._2)
-      countQuery.setParameter(p._1, p._2)
+      if (p._2.isInstanceOf[java.util.Collection[_]]) {
+        query.setParameterList(p._1, p._2.asInstanceOf[java.util.Collection[_]])
+        countQuery.setParameterList(p._1, p._2.asInstanceOf[java.util.Collection[_]])
+      }
+      else if (p._2.isInstanceOf[Seq[_]]) {
+        query.setParameterList(p._1, p._2.asInstanceOf[Seq[_]].asJava)
+        countQuery.setParameterList(p._1, p._2.asInstanceOf[Seq[_]].asJava)
+      }
+      else if (p._2.isInstanceOf[Array[_]]) {
+        query.setParameterList(p._1, p._2.asInstanceOf[Array[_]].toList.asJava)
+        countQuery.setParameterList(p._1, p._2.asInstanceOf[Array[_]].toList.asJava)
+      }
+      else {
+        query.setParameter(p._1, p._2)
+        countQuery.setParameter(p._1, p._2)
+      }
     })
 
     val count = countQuery.count()
@@ -41,10 +57,10 @@ trait QueryDaoSupport {
     val end = paperInfo.end
     query.setFirstResult(begin).setMaxResults(end - begin)
     val data = query.list().asInstanceOf[java.util.List[T]]
-    Navigator[T](data, count, begin, end)
+    Navigator[T](data, count, page, pageSize)
   }
 
-  def query[T <:Serializable](q: Query): java.util.List[T] = {
+  def query[T <: Serializable](q: Query): java.util.List[T] = {
     val query = session().createQuery(q.toActualHql())
     val params = q.toParams()
     params.foreach(p => {

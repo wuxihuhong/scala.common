@@ -4,6 +4,7 @@ import huhong.scala.common.unable_update
 
 import huhong.scala.common.dao.{GenericDao}
 import java.io.Serializable
+import org.hibernate.criterion.{Projections, Projection}
 import org.hibernate.{Session, SessionFactory}
 import huhong.scala.common.error.CustomException
 import huhong.scala.common.hibernate._
@@ -75,10 +76,10 @@ class BaseGenericDao[E <: Serializable : Manifest, PK <: Serializable : Manifest
   }
 
   @throws(classOf[Exception])
-  def copyProperties(src: Serializable, dist: Serializable, setnull: Boolean = false) = {
+  def copyProperties(src: Serializable, dist: Serializable, setnull: Boolean = false,ignores:Array[String]=Array()) = {
     val cls = src.getClass
     cls.getDeclaredFields().foreach(f => {
-      if (!f.isAnnotationPresent(classOf[unable_update]) && !f.isAnnotationPresent(classOf[javax.persistence.Id])) {
+      if (!f.isAnnotationPresent(classOf[unable_update]) && !f.isAnnotationPresent(classOf[javax.persistence.Id]) && !ignores.exists(_.equals(f.getName)) ) {
         f.setAccessible(true)
         val value = f.get(src)
         value match {
@@ -115,5 +116,9 @@ class BaseGenericDao[E <: Serializable : Manifest, PK <: Serializable : Manifest
     e
   }
 
+  @throws(classOf[Throwable])
+  def count(): Long = {
+    session.createCriteria(entityCls).setProjection(Projections.rowCount()).uniqueResult().asInstanceOf[Number].longValue()
 
+  }
 }

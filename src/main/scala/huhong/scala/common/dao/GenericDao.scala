@@ -88,5 +88,6 @@ trait GenericDao[E <: Serializable, PK <: Serializable] extends SessionSupport {
   @throws(classOf[Throwable])
   def count(q: Query): Long = q.count()
 
-
+  @throws(classOf[Throwable])
+  def count():Long
 }

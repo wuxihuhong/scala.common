@@ -78,7 +78,6 @@ package object query {
   abstract class OptionFieldQuery extends Query with IndexQuery {
 
 
-
     def queryFields: QueryFields = createQueryFields()
 
 
@@ -172,6 +171,9 @@ package object query {
 
       })
 
+      if (qfs == null) {
+        qfs = QueryFields("1", int2Integer(1), "", "defaultvalue", "=")
+      }
       qfs
     }
 

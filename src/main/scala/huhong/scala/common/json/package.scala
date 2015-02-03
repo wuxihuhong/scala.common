@@ -69,6 +69,7 @@ package object json {
       if (src.isDefined) {
         def value = src.get
         jsonObject.addProperty("class", value.asInstanceOf[Object].getClass.getName)
+
         jsonObject.add("value", context.serialize(value))
       }
       jsonObject
@@ -81,6 +82,8 @@ package object json {
         None
       } else {
         val className = json.getAsJsonObject.get("class").getAsString
+
+
 
         val deserialized = context.deserialize(json.getAsJsonObject.get("value"), Class.forName(className)).asInstanceOf[Any]
         Option(deserialized)
@@ -119,7 +122,7 @@ package object json {
   objectMapper.registerModule(DefaultScalaModule)
 
 
-  lazy val gson = new GsonBuilder().serializeNulls().registerTypeAdapter(classOf[Date], new LongToDateAdapter).registerTypeAdapter(classOf[Option[_]], new OptionSerializer).create()
+  lazy val gson = new GsonBuilder().serializeNulls().registerTypeAdapter(classOf[Option[_]], new OptionSerializer()).registerTypeAdapter(classOf[Date], new LongToDateAdapter).create()
 
   private lazy val gsonFormat = new GsonBuilder().setPrettyPrinting().create()
   private lazy val jsonParser = new JsonParser
@@ -208,6 +211,52 @@ package object json {
         case _ => {
           objectMapper.readValue(str, manifest[T].runtimeClass).asInstanceOf[T]
         }
+      }
+
+    }
+  }
+
+
+  def jField(name:String,value:Any)={
+    value match {
+      case null=>{
+        JField(name,JNull)
+      }
+      case str:String=>{
+        JField(name,JString(str))
+      }
+      case int:Int=>{
+        JField(name,JInt(BigInt(int)))
+      }
+      case int:java.lang.Integer=>{
+        JField(name,JInt(BigInt(int)))
+      }
+      case long:Long=>{
+        JField(name,JInt(BigInt(long)))
+      }
+      case long:java.lang.Long=>{
+        JField(name,JInt(BigInt(long)))
+      }
+      case boolean:Boolean=>{
+        JField(name,JBool(boolean))
+      }
+      case boolean:java.lang.Boolean=>{
+        JField(name,JBool(boolean))
+      }
+      case double:Double=>{
+        JField(name,JDouble(double))
+      }
+      case double:java.lang.Double=>{
+        JField(name,JDouble(double))
+      }
+      case bigDecimal:java.math.BigDecimal=>{
+        JField(name,JDouble(bigDecimal.doubleValue()))
+      }
+      case bigDecimal:BigDecimal=>{
+        JField(name,JDouble(bigDecimal.doubleValue()))
+      }
+      case date:Date=>{
+        JField(name,JInt(BigInt(date.getTime)))
       }
 
     }
