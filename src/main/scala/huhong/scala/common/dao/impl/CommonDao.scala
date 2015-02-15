@@ -149,6 +149,9 @@ class CommonDao(@BeanProperty var sf: SessionFactory) extends SessionSupport wit
 
   def session(): Session = sf.getCurrentSession
 
+
+  def refresh[E <: Serializable](data: E): Unit = session().refresh(data)
+
   @throws(classOf[Exception])
   protected def copyProperties(src: Serializable, dist: Serializable, setnull: Boolean = false) = {
     val cls = src.getClass

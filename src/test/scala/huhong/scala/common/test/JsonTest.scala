@@ -43,7 +43,7 @@ object JsonTest extends App {
 
     var name: Option[String] = None
 
-    var sex: Option[Int] = None
+    var sex: Option[Array[String]] = None
 
     var birthdayYear: Option[Integer] = None
 
@@ -69,9 +69,12 @@ object JsonTest extends App {
   }
 
   var start=System.currentTimeMillis()
-  println(new TestBean().toJsonString())
 
-  val bean= """{"name":{"value":null,"class":"java.lang.String"},"sex":{"value":null,"class":"java.lang.Integer"},"birthdayYear":{"value":null,"class":"java.lang.Integer"},"birthdayMonth":{"value":null,"class":"java.lang.Integer"},"hometown":{"value":null,"class":"java.lang.String"},"maritalStatus":{"value":null,"class":"java.lang.Integer"},"tel":{"value":null,"class":"java.lang.String"},"address":{"value":null,"class":"java.lang.String"},"workNO":{"value":null,"class":"java.lang.String"},"job":{"value":null,"class":"java.lang.String"},"joinDate":{"value":1422608395000,"class":"java.util.Date"}}""".toBean[EmployeeQuery]
+  val e=new EmployeeQuery()
+  e.sex=Some(Array("1","2"))
+  println(e.toJsonString())
+
+  val bean= """{"name":{},"sex":{"class":"[Ljava.lang.String;","value":["1","2"]},"birthdayYear":{},"birthdayMonth":{},"hometown":{},"maritalStatus":{},"tel":{},"address":{},"workNO":{},"job":{},"joinDate":{},"deleted":{"class":"java.lang.Boolean","value":false}}""".toBean[EmployeeQuery]
 
   println(System.currentTimeMillis()-start)
 

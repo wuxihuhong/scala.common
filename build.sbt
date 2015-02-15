@@ -6,7 +6,7 @@ version := "1.0.0-M6-SNAPSHOT"
 
 scalaVersion := "2.10.4"
 
-scalacOptions ++= Seq("-deprecation", "-unchecked")
+scalacOptions ++= Seq("-deprecation", "-unchecked","-optimise","-Ylog:inline")
 
 javacOptions ++= Seq("-encoding", "UTF-8", "-source", "1.6", "-target", "1.6", "-Xlint:unchecked", "-Xlint:deprecation")
 

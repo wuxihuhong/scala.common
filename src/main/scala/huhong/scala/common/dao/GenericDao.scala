@@ -90,4 +90,7 @@ trait GenericDao[E <: Serializable, PK <: Serializable] extends SessionSupport {
 
   @throws(classOf[Throwable])
   def count():Long
+
+
+  def refresh(data:E):Unit=session().refresh(data)
 }

@@ -7,7 +7,7 @@ import huhong.scala.common._
 import org.apache.lucene.analysis.Analyzer
 import org.apache.lucene.index.Term
 import org.apache.lucene.queryparser.classic.QueryParser
-import org.hibernate.search.query.dsl.QueryBuilder
+import org.hibernate.search.query.dsl.{QueryBuilder=>SearchQueryBuilder}
 import org.springframework.util.StringUtils
 import org.apache.lucene.search.{Query => LuceneQuery, _}
 import scala.collection.JavaConversions._
@@ -70,7 +70,7 @@ package object query {
   }
 
   trait IndexQuery {
-    def toIndexQuery(qb: QueryBuilder): LuceneQuery
+    def toIndexQuery(qb: SearchQueryBuilder): LuceneQuery
 
     def toIndexSort(): Sort
   }
@@ -139,7 +139,22 @@ package object query {
                 qfs.and(qs.asInstanceOf[QuerySupport])
               }
             }
-          } else {
+          }
+          else if (f.isAnnotationPresent(classOf[querybuilder])) {
+            val qb = f.getAnnotation(classOf[querybuilder])
+            val qbuilder = qb.builder().newInstance()
+            val qs = qbuilder.createHql(valueOpt.get)
+            if (qfs == null) {
+              qfs = new QueryFields(qs.asInstanceOf[QuerySupport])
+            } else {
+              if (f.isAnnotationPresent(classOf[or])) {
+                qfs.or(qs.asInstanceOf[QuerySupport])
+              } else {
+                qfs.and(qs.asInstanceOf[QuerySupport])
+              }
+            }
+          }
+          else {
             var tablename = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).tablename() else null
             var fieldname = if (f.isAnnotationPresent(classOf[query_field])) f.getAnnotation(classOf[query_field]).value() else f.getName
             if (fieldname.equals("")) {
@@ -178,7 +193,7 @@ package object query {
     }
 
 
-    def toIndexQuery(qb: QueryBuilder): LuceneQuery = {
+    def toIndexQuery(qb: SearchQueryBuilder): LuceneQuery = {
       val clz = this.getClass
 
       val fields = clz.getDeclaredFields.filter(f => {
@@ -278,7 +293,7 @@ package object query {
     }
 
 
-    private def createChildLuceneQuery(fieldName: String, value: Any, op: String, qb: QueryBuilder, lower: Boolean): LuceneQuery = {
+    private def createChildLuceneQuery(fieldName: String, value: Any, op: String, qb: SearchQueryBuilder, lower: Boolean): LuceneQuery = {
       value match {
         case str: String if (op.equals("phrase")) => {
           //createPhraseQuery(fieldName, if (lower) str.toLowerCase else str)
@@ -361,16 +376,16 @@ package object query {
   private case class QueryField(name: String, conditionValue: Any, tableName: String = null, paramName: String = null, operator: String = "=") extends Serializable with HQLSupport with ParametersSupport {
 
 
-    if (operator.toLowerCase().equals("in")) {
-      if (!conditionValue.isInstanceOf[JCollection[_]] && !conditionValue.isInstanceOf[Array[_]] ||
-        !conditionValue.isInstanceOf[Seq[_]]) {
-        assert(false, "in表达式必须使用一个列表条件")
-      }
-
-      if (paramName != null) {
-        assert(false, "in表达式必须制定参数名")
-      }
-    }
+    //    if (operator.toLowerCase().equals("in")) {
+    //      if (!conditionValue.isInstanceOf[JCollection[_]] && !conditionValue.isInstanceOf[Array[_]] ||
+    //        !conditionValue.isInstanceOf[Seq[_]]) {
+    //        assert(false, "in表达式必须使用一个列表条件")
+    //      }
+    //
+    //      if (paramName != null) {
+    //        assert(false, "in表达式必须制定参数名")
+    //      }
+    //    }
 
     def toHQL(): String = {
       val tn = if (StringUtils.isEmpty(tableName)) "" else s"$tableName."
