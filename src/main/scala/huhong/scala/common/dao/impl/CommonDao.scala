@@ -5,7 +5,7 @@ import java.io.Serializable
 import huhong.scala.common.dao.{IndexQueryDaoSupport, QueryDaoSupport, SessionDaoSupport, SessionSupport}
 import huhong.scala.common.error.CustomException
 import huhong.scala.common.unable_update
-import org.hibernate.{Session, Query, SessionFactory}
+import org.hibernate.{LockOptions, Session, Query, SessionFactory}
 
 import scala.collection.JavaConverters._
 import huhong.scala.common.hibernate._
@@ -37,6 +37,23 @@ class CommonDao(@BeanProperty var sf: SessionFactory) extends SessionSupport wit
   def javaList[E <: Serializable : Manifest](): java.util.List[E] = {
     session.createCriteria(manifest[E].runtimeClass).list().asInstanceOf[java.util.List[E]]
   }
+
+
+  @throws(classOf[Throwable])
+  def lockJavaList[E <: Serializable : Manifest](begin: Int, end: Int, lockOptions: LockOptions): java.util.List[E] = {
+    session.createCriteria(manifest[E].runtimeClass).setLockMode(lockOptions.getLockMode).setFirstResult(begin).setMaxResults(end - begin).list().asInstanceOf[java.util.List[E]]
+  }
+
+  @throws(classOf[Throwable])
+  def lockJavaList[E <: Serializable : Manifest](lockOptions: LockOptions): java.util.List[E] = {
+    session.createCriteria(manifest[E].runtimeClass).setLockMode(lockOptions.getLockMode).list().asInstanceOf[java.util.List[E]]
+  }
+
+  @throws(classOf[Throwable])
+  def lockList[E <: Serializable : Manifest](begin: Int, end: Int, lockOptions: LockOptions): List[E] = lockJavaList(begin, end, lockOptions).asScala.toList
+
+  @throws(classOf[Throwable])
+  def lockList[E <: Serializable : Manifest](lockOptions: LockOptions): List[E] = lockJavaList(lockOptions).asScala.toList
 
   @throws(classOf[Throwable])
   def save[E <: Serializable](e: E): E = {
@@ -110,8 +127,11 @@ class CommonDao(@BeanProperty var sf: SessionFactory) extends SessionSupport wit
   }
 
   @throws(classOf[Throwable])
-  def get[PK <: Serializable, E <: Serializable : Manifest](id: PK): E = {
-    session().get(manifest[E].runtimeClass, id).asInstanceOf[E]
+  def get[PK <: Serializable, E <: Serializable : Manifest](id: PK, lockOptions: LockOptions = null): E = {
+    if (lockOptions == null)
+      session().get(manifest[E].runtimeClass, id).asInstanceOf[E]
+    else
+      session().get(manifest[E].runtimeClass, id, lockOptions).asInstanceOf[E]
   }
 
   @throws(classOf[Throwable])
@@ -141,7 +161,7 @@ class CommonDao(@BeanProperty var sf: SessionFactory) extends SessionSupport wit
   def apply[E <: Serializable : Manifest](): List[E] = list[E]
 
   @throws(classOf[Throwable])
-  def apply[PK <: Serializable, E <: Serializable : Manifest](id: PK): E = get[PK, E](id)
+  def apply[PK <: Serializable, E <: Serializable : Manifest](id: PK, lockOptions: LockOptions = null): E = get[PK, E](id, lockOptions)
 
   @throws(classOf[Throwable])
   def count(q: Query): Long = q.count()

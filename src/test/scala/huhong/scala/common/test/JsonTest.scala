@@ -74,8 +74,8 @@ object JsonTest extends App {
   e.sex=Some(Array("1","2"))
   println(e.toJsonString())
 
-  val bean= """{"name":{},"sex":{"class":"[Ljava.lang.String;","value":["1","2"]},"birthdayYear":{},"birthdayMonth":{},"hometown":{},"maritalStatus":{},"tel":{},"address":{},"workNO":{},"job":{},"joinDate":{},"deleted":{"class":"java.lang.Boolean","value":false}}""".toBean[EmployeeQuery]
-
+  val bean= """{"name":{},"sex":{"class":"[Ljava.lang.String;","value":["木樨园","体育公园1"]},"birthdayYear":{},"birthdayMonth":{},"hometown":{},"maritalStatus":{},"tel":{},"address":{},"workNO":{},"job":{},"joinDate":{},"deleted":{"class":"java.lang.Boolean","value":false}}""".toBean[EmployeeQuery]
+  println(bean.sex.get(0))
   println(System.currentTimeMillis()-start)
 
 

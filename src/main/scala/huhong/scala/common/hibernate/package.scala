@@ -2,9 +2,10 @@ package huhong.scala.common
 
 import java.util.Collection
 
-import org.hibernate.{Query, Session}
+import org.hibernate.{LockOptions, Query, Session}
 
 import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 
 /**
  * Created by huhong on 14/12/19.
@@ -32,6 +33,8 @@ package object hibernate {
       }
 
       hqlsb ++= sc.parts(sc.parts.length - 1)
+
+
 
       val q = session.createQuery(hqlsb.toString())
 
@@ -79,5 +82,23 @@ package object hibernate {
     }
   }
 
+  def lockEntity[T](lockOptions: LockOptions)(obj: T)(implicit session: Session): T = {
+    if (obj != null) {
+      val lock = session.buildLockRequest(lockOptions)
+
+      if (obj.isInstanceOf[Collection[_]]) {
+        obj.asInstanceOf[Collection[_]].foreach(lock.lock(_))
+      } else
+        lock.lock(obj)
+
+    }
+
+    obj
+  }
+
+  def lock(lockOptions: LockOptions)(query: Query): Query = {
+    query.setLockOptions(lockOptions)
+    query
+  }
 
 }

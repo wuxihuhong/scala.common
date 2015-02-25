@@ -1,11 +1,13 @@
 package huhong.scala.common.dao.impl
 
+import java.util
+
 import huhong.scala.common.unable_update
 
 import huhong.scala.common.dao.{GenericDao}
 import java.io.Serializable
 import org.hibernate.criterion.{Projections, Projection}
-import org.hibernate.{Session, SessionFactory}
+import org.hibernate.{LockOptions, Session, SessionFactory}
 import huhong.scala.common.error.CustomException
 import huhong.scala.common.hibernate._
 
@@ -17,6 +19,7 @@ class BaseGenericDao[E <: Serializable : Manifest, PK <: Serializable : Manifest
 
   @throws(classOf[Exception])
   def javaList(): java.util.List[E] = {
+
     session.createCriteria(entityCls).list().asInstanceOf[java.util.List[E]]
   }
 
@@ -66,20 +69,25 @@ class BaseGenericDao[E <: Serializable : Manifest, PK <: Serializable : Manifest
   }
 
   @throws(classOf[Exception])
-  def get(id: PK): E = {
-    session.get(entityCls, id).asInstanceOf[E]
+  def get(id: PK, lockOptions: LockOptions = null): E = {
+    if (lockOptions != null)
+      session.get(entityCls, id, lockOptions).asInstanceOf[E]
+    else
+      session.get(entityCls, id).asInstanceOf[E]
   }
 
   @throws(classOf[Throwable])
   def javaList(begin: Int, end: Int): java.util.List[E] = {
+
     session.createCriteria(entityCls).setFirstResult(begin).setMaxResults(end - begin).list().asInstanceOf[java.util.List[E]]
+
   }
 
   @throws(classOf[Exception])
-  def copyProperties(src: Serializable, dist: Serializable, setnull: Boolean = false,ignores:Array[String]=Array()) = {
+  def copyProperties(src: Serializable, dist: Serializable, setnull: Boolean = false, ignores: Array[String] = Array()) = {
     val cls = src.getClass
     cls.getDeclaredFields().foreach(f => {
-      if (!f.isAnnotationPresent(classOf[unable_update]) && !f.isAnnotationPresent(classOf[javax.persistence.Id]) && !ignores.exists(_.equals(f.getName)) ) {
+      if (!f.isAnnotationPresent(classOf[unable_update]) && !f.isAnnotationPresent(classOf[javax.persistence.Id]) && !ignores.exists(_.equals(f.getName))) {
         f.setAccessible(true)
         val value = f.get(src)
         value match {
@@ -120,5 +128,17 @@ class BaseGenericDao[E <: Serializable : Manifest, PK <: Serializable : Manifest
   def count(): Long = {
     session.createCriteria(entityCls).setProjection(Projections.rowCount()).uniqueResult().asInstanceOf[Number].longValue()
 
+  }
+
+  @throws(classOf[Throwable])
+  def lockJavaList(begin: Int, end: Int, lockOptions: LockOptions): util.List[E] = {
+    session.createCriteria(entityCls).setLockMode(lockOptions.getLockMode).setFirstResult(begin).setMaxResults(end - begin).list().asInstanceOf[java.util.List[E]]
+
+
+  }
+
+  @throws(classOf[Throwable])
+  def lockJavaList(lockOptions: LockOptions): util.List[E] = {
+    session.createCriteria(entityCls).setLockMode(lockOptions.getLockMode).list().asInstanceOf[java.util.List[E]]
   }
 }

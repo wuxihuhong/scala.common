@@ -2,7 +2,7 @@ package huhong.scala.common.dao
 
 import huhong.scala.common.hibernate.QueryExt
 import scala.collection.JavaConverters._
-import org.hibernate.{Session, Query}
+import org.hibernate.{LockOptions, Session, Query}
 import java.io.Serializable
 
 trait GenericDao[E <: Serializable, PK <: Serializable] extends SessionSupport {
@@ -54,7 +54,7 @@ trait GenericDao[E <: Serializable, PK <: Serializable] extends SessionSupport {
   def deleteById(id: PK): Unit
 
   @throws(classOf[Throwable])
-  def get(id: PK): E
+  def get(id: PK, lockOptions: LockOptions = null): E
 
   @throws(classOf[Throwable])
   def +(data: E): E = save(data)
@@ -80,17 +80,29 @@ trait GenericDao[E <: Serializable, PK <: Serializable] extends SessionSupport {
   def --(id: PK) = deleteById(id)
 
   @throws(classOf[Throwable])
-  def apply() = list
+  def apply() = list()
 
   @throws(classOf[Throwable])
-  def apply(id: PK) = get(id)
+  def apply(id: PK, lockOptions: LockOptions = null) = get(id, lockOptions)
 
   @throws(classOf[Throwable])
   def count(q: Query): Long = q.count()
 
   @throws(classOf[Throwable])
-  def count():Long
+  def count(): Long
 
 
-  def refresh(data:E):Unit=session().refresh(data)
+  def refresh(data: E): Unit = session().refresh(data)
+
+  @throws(classOf[Throwable])
+  def lockJavaList(begin: Int, end: Int, lockOptions: LockOptions): java.util.List[E]
+
+  @throws(classOf[Throwable])
+  def lockJavaList(lockOptions: LockOptions): java.util.List[E]
+
+  @throws(classOf[Throwable])
+  def lockList(begin: Int, end: Int, lockOptions: LockOptions): List[E] = lockJavaList(begin, end, lockOptions).asScala.toList
+
+  @throws(classOf[Throwable])
+  def lockList(lockOptions: LockOptions): List[E] = lockJavaList(lockOptions).asScala.toList
 }
