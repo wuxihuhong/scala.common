@@ -7,7 +7,7 @@ import huhong.scala.common._
 import org.apache.lucene.analysis.Analyzer
 import org.apache.lucene.index.Term
 import org.apache.lucene.queryparser.classic.QueryParser
-import org.hibernate.search.query.dsl.{QueryBuilder=>SearchQueryBuilder}
+import org.hibernate.search.query.dsl.{QueryBuilder => SearchQueryBuilder}
 import org.springframework.util.StringUtils
 import org.apache.lucene.search.{Query => LuceneQuery, _}
 import scala.collection.JavaConversions._
@@ -126,9 +126,20 @@ package object query {
         val valueOpt = f.get(this).asInstanceOf[Option[_]]
         if (valueOpt.isDefined) {
 
+          var value = valueOpt.get
+
+          if (f.isAnnotationPresent(classOf[prefix]) && value.isInstanceOf[String]) {
+            value = f.getAnnotation(classOf[prefix]).value() + value.toString
+          }
+
+          if (f.isAnnotationPresent(classOf[suffix]) && value.isInstanceOf[String]) {
+            value = value.toString + f.getAnnotation(classOf[suffix]).value()
+          }
+
+
           if (f.isAnnotationPresent(classOf[where])) {
             val where = f.getAnnotation(classOf[where])
-            val qs = WhereQuery(where.value(), f.getName, valueOpt.get)
+            val qs = WhereQuery(where.value(), f.getName, value)
             if (qfs == null) {
               qfs = new QueryFields(qs.asInstanceOf[QuerySupport])
 
@@ -143,7 +154,7 @@ package object query {
           else if (f.isAnnotationPresent(classOf[querybuilder])) {
             val qb = f.getAnnotation(classOf[querybuilder])
             val qbuilder = qb.builder().newInstance()
-            val qs = qbuilder.createHql(valueOpt.get)
+            val qs = qbuilder.createHql(value)
             if (qfs == null) {
               qfs = new QueryFields(qs.asInstanceOf[QuerySupport])
             } else {
@@ -173,12 +184,12 @@ package object query {
 
             val paramName = f.getName
             if (qfs == null) {
-              qfs = QueryFields(fieldname, valueOpt.get, tablename, paramName, op)
+              qfs = QueryFields(fieldname, value, tablename, paramName, op)
             } else {
               if (f.isAnnotationPresent(classOf[or])) {
-                qfs.or(fieldname, valueOpt.get, tablename, paramName, op)
+                qfs.or(fieldname, value, tablename, paramName, op)
               } else {
-                qfs.and(fieldname, valueOpt.get, tablename, paramName, op)
+                qfs.and(fieldname, value, tablename, paramName, op)
               }
             }
           }

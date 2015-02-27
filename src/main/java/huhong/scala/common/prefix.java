@@ -6,16 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by huhong on 15/1/13.
+ * Created by huhong on 15/2/27.
  */
 @Target({java.lang.annotation.ElementType.FIELD,
         java.lang.annotation.ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-public @interface where {
-    String value();
-
-    Class<?> analyzerImpl() default Void.class;
-
-
+public @interface prefix {
+    String value() default "";
 }
