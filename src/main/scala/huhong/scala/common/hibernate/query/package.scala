@@ -485,7 +485,7 @@ package object query {
     }
 
     def toParams(): Seq[(String, Any)] = {
-      conditions.map(_.toParams().head)
+      conditions.flatMap(_.toParams())
     }
   }
 

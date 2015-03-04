@@ -217,46 +217,46 @@ package object json {
   }
 
 
-  def jField(name:String,value:Any)={
+  def jField(name: String, value: Any) = {
     value match {
-      case null=>{
-        JField(name,JNull)
+      case null => {
+        JField(name, JNull)
       }
-      case str:String=>{
-        JField(name,JString(str))
+      case str: String => {
+        JField(name, JString(str))
       }
-      case int:Int=>{
-        JField(name,JInt(BigInt(int)))
+      case int: Int => {
+        JField(name, JInt(BigInt(int)))
       }
-      case int:java.lang.Integer=>{
-        JField(name,JInt(BigInt(int)))
+      case int: java.lang.Integer => {
+        JField(name, JInt(BigInt(int)))
       }
-      case long:Long=>{
-        JField(name,JInt(BigInt(long)))
+      case long: Long => {
+        JField(name, JInt(BigInt(long)))
       }
-      case long:java.lang.Long=>{
-        JField(name,JInt(BigInt(long)))
+      case long: java.lang.Long => {
+        JField(name, JInt(BigInt(long)))
       }
-      case boolean:Boolean=>{
-        JField(name,JBool(boolean))
+      case boolean: Boolean => {
+        JField(name, JBool(boolean))
       }
-      case boolean:java.lang.Boolean=>{
-        JField(name,JBool(boolean))
+      case boolean: java.lang.Boolean => {
+        JField(name, JBool(boolean))
       }
-      case double:Double=>{
-        JField(name,JDouble(double))
+      case double: Double => {
+        JField(name, JDouble(double))
       }
-      case double:java.lang.Double=>{
-        JField(name,JDouble(double))
+      case double: java.lang.Double => {
+        JField(name, JDouble(double))
       }
-      case bigDecimal:java.math.BigDecimal=>{
-        JField(name,JDouble(bigDecimal.doubleValue()))
+      case bigDecimal: java.math.BigDecimal => {
+        JField(name, JDouble(bigDecimal.doubleValue()))
       }
-      case bigDecimal:BigDecimal=>{
-        JField(name,JDouble(bigDecimal.doubleValue()))
+      case bigDecimal: BigDecimal => {
+        JField(name, JDouble(bigDecimal.doubleValue()))
       }
-      case date:Date=>{
-        JField(name,JInt(BigInt(date.getTime)))
+      case date: Date => {
+        JField(name, JInt(BigInt(date.getTime)))
       }
 
     }
