@@ -6,6 +6,7 @@ import org.hibernate.{LockOptions, Query, Session}
 
 import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
+import scala.collection.mutable.ListBuffer
 
 /**
  * Created by huhong on 14/12/19.
@@ -79,6 +80,24 @@ package object hibernate {
       q.setFirstResult(first)
       q.setMaxResults(max)
       q.list().asInstanceOf[java.util.List[T]]
+    }
+
+
+    def commitTempParameters(params: Seq[(String, AnyRef)]) = {
+      if (params != null) {
+        params.foreach(p => {
+
+          p._2 match {
+            case array: Array[AnyRef] => q.setParameterList(p._1, array)
+            case collection: Collection[AnyRef] => q.setParameterList(p._1, collection)
+            case seq: Seq[AnyRef] => q.setParameterList(p._1, seq.asJavaCollection)
+            case _ => q.setParameter(p._1, p._2)
+          }
+        })
+
+
+      }
+      q
     }
   }
 

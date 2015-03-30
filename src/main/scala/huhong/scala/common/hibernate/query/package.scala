@@ -321,7 +321,8 @@ package object query {
           qb.bool().should(qb.keyword().onField(fieldName).matching(str).createQuery()).
             should(qb.keyword().wildcard().onField(fieldName).matching((if (lower) str.toLowerCase else str)).createQuery()).createQuery()
         }
-        case number: Number if (op.equals("=")) => {
+
+        case number: Number if (op.equals("="))  => {
           qb.range().onField(fieldName).from(number).to(number).createQuery()
         }
         case number: Number if (op.equals("<")) => {
